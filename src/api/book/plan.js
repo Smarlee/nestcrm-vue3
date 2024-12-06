@@ -30,7 +30,7 @@ export function addBook(data) {
 // 修改公告
 export function updateBook(data) {
   return request({
-    url: '/system/bookList',
+    url: '/system/bookPlan',
     method: 'put',
     data: data
   })
@@ -39,7 +39,7 @@ export function updateBook(data) {
 // 删除公告
 export function delBook(noticeId) {
   return request({
-    url: '/system/bookList/' + noticeId,
+    url: '/system/bookPlan/' + noticeId,
     method: 'delete'
   })
 }

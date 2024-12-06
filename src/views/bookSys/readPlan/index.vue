@@ -7,9 +7,9 @@
       :inline="true"
       v-show="showSearch"
     >
-      <el-form-item label="图书名" prop="bookName">
+      <el-form-item label="计划名" prop="planName">
         <el-input
-          v-model="queryParams.bookName"
+          v-model="queryParams.planName"
           placeholder="请输入图书名"
           clearable
           style="width: 200px"
@@ -59,7 +59,7 @@
         <el-table-column
           label="序号"
           align="center"
-          prop="bookId"
+          prop="planId"
           width="100"
         />
         
@@ -73,8 +73,12 @@
         <el-table-column
           label="参与的读者"
           align="center"
-          prop="userId"
-        />
+          prop="users"
+        >
+          <template #default="scope">
+            {{scope.row.users.nickName}}
+          </template>
+        </el-table-column>
         <el-table-column
           label="计划周期"
           align="center"
@@ -171,6 +175,7 @@
             <el-form-item label="参与的读者" prop="userId">
               <el-input
                 v-model="form.userId"
+                type="number"
                 placeholder="请输入图书价格"
               />
             </el-form-item>
@@ -191,7 +196,14 @@
               />
             </el-form-item>
           </el-col>
- 
+          <el-col :span="12">
+            <el-form-item label="多选读者" prop="userIds">
+              <el-input
+                v-model="form.userIds"
+                placeholder="请输入图书价格"
+              />
+            </el-form-item>
+          </el-col>
         </el-row>
       </el-form>
       <template #footer>
@@ -219,11 +231,11 @@ const data = reactive({
   queryParams: {
     pageNum: 1,
     pageSize: 10,
-    bookName: undefined,
+    planName: undefined,
     createBy: undefined,
   },
   rules: {
-    bookName: [
+    planName: [
       { required: true, message: '标题不能为空', trigger: 'blur' }
     ],
     menuType: [
@@ -296,12 +308,15 @@ function submitForm () {
   proxy.$refs['noticeRef'].validate(valid => {
     if (valid) {
       if (form.value.planId != undefined) {
+        form.value.userId = Number(form.value.userId)
         updateBook(form.value).then(response => {
           proxy.$modal.msgSuccess('修改成功')
           open.value = false
           getList()
         })
       } else {
+        form.value.userId=2
+        form.value.userIds=[2,3]
         addBook(form.value).then(response => {
           proxy.$modal.msgSuccess('新增成功')
           open.value = false
