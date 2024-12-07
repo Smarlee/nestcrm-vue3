@@ -10,9 +10,9 @@ export function listBook(query) {
 }
 
 // 查询公告详细
-export function getBook(noticeId) {
+export function getBookplan(planId) {
   return request({
-    url: '/system/bookPlan/' + noticeId,
+    url: '/system/bookPlan/' + planId,
     method: 'get'
   })
 }

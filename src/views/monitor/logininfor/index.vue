@@ -44,7 +44,7 @@
       <el-form-item label="登录时间" style="width: 275px">
         <el-date-picker
           v-model="dateRange"
-          value-format="YYYY-MM-DD HH:mm:ss"
+           HH:mm:ss"
           type="daterange"
           range-separator="-"
           start-placeholder="开始日期"

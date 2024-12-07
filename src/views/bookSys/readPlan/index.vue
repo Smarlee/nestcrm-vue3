@@ -75,8 +75,8 @@
           align="center"
           prop="users"
         >
-          <template #default="scope">
-            {{scope.row.users.nickName}}
+          <template #default="scope" >
+           <span v-if="scope.row.sys_user.length" v-for="item in scope.row.sys_user"> {{item.nickName}},</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -172,36 +172,48 @@
             </el-form-item>
           </el-col> -->
           <el-col :span="12">
-            <el-form-item label="参与的读者" prop="userId">
-              <el-input
-                v-model="form.userId"
+            <el-form-item label="选择图书" prop="books">
+              <el-select
+                v-model="form.books"
                 type="number"
-                placeholder="请输入图书价格"
-              />
+                placeholder="请选择图书"
+              >
+              <el-option value="钢铁是怎么练成的">钢铁是怎么练成的</el-option>
+              <el-option value="弗洛娃">弗洛娃</el-option>
+              <el-option value="十万个为什么">十万个为什么</el-option>
+
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="开始时间" prop="startTime">
-              <el-input
+              <el-date-picker
                 v-model="form.startTime"
+                 value-format="YYYY-MM-DD HH:mm:ss"
+                type="datetime"
                 placeholder="请输入图书价格"
               />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="结束时间" prop="endTime">
-              <el-input
+              <el-date-picker
                 v-model="form.endTime"
+                 type="datetime"
+                 value-format="YYYY-MM-DD HH:mm:ss"
                 placeholder="请输入图书价格"
               />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="多选读者" prop="userIds">
-              <el-input
+            <el-form-item label="多选读者" prop="userIds" v-if="true">
+              <el-select
                 v-model="form.userIds"
-                placeholder="请输入图书价格"
-              />
+                placeholder="请输入"
+                multiple
+              >
+                <el-option v-for="item in userIds" :label="item.nickName" :value="item.userId"></el-option>
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
@@ -213,19 +225,25 @@
         </div>
       </template>
     </el-dialog>
-
+ 
     </div>
 </template>
 
-<script setup name="Book">
+<script setup name="Bookplan">
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
+
  const { proxy } = getCurrentInstance()
 const { sys_book_type, } = proxy.useDict(
   'sys_book_type',
 )
 import {
-  listBook,getBook,updateBook,addBook,delBook
+  listBook,getBookplan,updateBook,addBook,delBook
  
 } from '@/api/book/plan'
+import { onMounted } from 'vue';
 const data = reactive({
   form: {},
   queryParams: {
@@ -233,6 +251,7 @@ const data = reactive({
     pageSize: 10,
     planName: undefined,
     createBy: undefined,
+
   },
   rules: {
     planName: [
@@ -252,6 +271,22 @@ const open = ref(false)
 const title = ref(null)
 const ids = ref([])
 const showSearch =ref(true)
+const userIds = ref([])
+import {
+  listUser,
+} from '@/api/system/user'
+onMounted( async()=>{
+   let res =await listUser() 
+   userIds.value = res.rows
+})
+
+dayjs.extend(timezone);
+dayjs.extend(utc);
+
+function formatForApi(date) {
+      return dayjs(date).utc(8).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+    }
+
 function getList () {
 //   loading.value = true
  
@@ -269,7 +304,9 @@ function reset () {
     bookId: undefined,
     bookName: undefined,
     menuType: undefined,
- 
+    userId:1,
+     startTime:'2025-01-21T14:31:04.000Z',
+    endTime:'2025-02-21T14:31:04.000Z'
   }
   proxy.resetForm('noticeRef')
 }
@@ -297,8 +334,9 @@ function handleAdd () {
 function handleUpdate (row) {
    reset()
   const noticeId = row.planId || ids.value
-  getBook(noticeId).then(response => {
-    form.value = response.data
+  getBookplan(noticeId).then(res => {
+    form.value = res.data
+    form.value.userIds = res.userIds
     open.value = true
     title.value = '修改图书'
   })
@@ -307,8 +345,11 @@ function handleUpdate (row) {
 function submitForm () {
   proxy.$refs['noticeRef'].validate(valid => {
     if (valid) {
+      form.value.startTime =formatForApi(form.value.startTime)
+      form.value.endTime =formatForApi(form.value.endTime)
+
       if (form.value.planId != undefined) {
-        form.value.userId = Number(form.value.userId)
+       
         updateBook(form.value).then(response => {
           proxy.$modal.msgSuccess('修改成功')
           open.value = false
@@ -316,7 +357,6 @@ function submitForm () {
         })
       } else {
         form.value.userId=2
-        form.value.userIds=[2,3]
         addBook(form.value).then(response => {
           proxy.$modal.msgSuccess('新增成功')
           open.value = false
