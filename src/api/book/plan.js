@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 
 // 查询定时任务调度列表
-export function listBook(query) {
+export function listBookPlan(query) {
   return request({
     url: '/system/bookPlan/list',
     method: 'get',

@@ -10,7 +10,7 @@
       <el-form-item label="计划名" prop="planName">
         <el-input
           v-model="queryParams.planName"
-          placeholder="请输入图书名"
+          placeholder="请输入读书计划名"
           clearable
           style="width: 200px"
           @keyup.enter="handleQuery"
@@ -20,7 +20,7 @@
       <el-form-item label="类型" prop="menuType">
         <el-select
           v-model="queryParams.menuType"
-          placeholder="图书类型"
+          placeholder="读书计划类型"
           clearable
           style="width: 200px"
         >
@@ -60,14 +60,13 @@
           label="序号"
           align="center"
           prop="planId"
-          width="100"
+          width="50"
         />
         
         <el-table-column
           label="计划名称"
           align="center"
           prop="planName"
-          :show-overflow-tooltip="true"
         />
  
         <el-table-column
@@ -77,6 +76,15 @@
         >
           <template #default="scope" >
            <span v-if="scope.row.sys_user.length" v-for="item in scope.row.sys_user"> {{item.nickName}},</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="选择的书单"
+          align="center"
+          prop="users"
+        >
+          <template #default="scope" >
+           <span v-if="scope.row.books.length" v-for="item in scope.row.books"> {{item.bookName}},</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -92,7 +100,7 @@
         </el-table-column>
         <el-table-column label="状态" align="center" prop="status" width="100">
           <template #default="scope">
-            <dict-tag :options="sys_notice_status" :value="scope.row.status" />
+            启用
           </template>
         </el-table-column>
  
@@ -145,22 +153,22 @@
       v-model="open"
       draggable
       :close-on-click-modal="false"
-      width="780px"
+      width="420px"
       append-to-body
     >
       <el-form ref="noticeRef" :model="form" :rules="rules" label-width="110px">
         <el-row>
-          <el-col :span="12">
+          <el-col :span="24" >
             <el-form-item label="阅读计划名" prop="planName">
               <el-input
                 v-model="form.planName"
-                placeholder="请输入图书标题"
+                placeholder="请输入读书计划标题"
               />
             </el-form-item>
           </el-col>
 
           <!-- <el-col :span="12">
-            <el-form-item label="图书类型" prop="menuType">
+            <el-form-item label="读书计划类型" prop="menuType">
               <el-select v-model="form.menuType" placeholder="请选择">
                 <el-option
                   v-for="dict in sys_book_type"
@@ -171,41 +179,41 @@
               </el-select>
             </el-form-item>
           </el-col> -->
-          <el-col :span="12">
-            <el-form-item label="选择图书" prop="books">
+          <el-col :span="24">
+            <el-form-item label="选择读书计划" prop="bookIds">
               <el-select
-                v-model="form.books"
+                v-model="form.bookIds"
                 type="number"
-                placeholder="请选择图书"
+                placeholder="请选择读书计划"
+                multiple
               >
-              <el-option value="钢铁是怎么练成的">钢铁是怎么练成的</el-option>
-              <el-option value="弗洛娃">弗洛娃</el-option>
-              <el-option value="十万个为什么">十万个为什么</el-option>
+              <el-option v-for="item in booksList" :label="item.bookName" :value="item.bookId"></el-option>
+
 
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="24">
             <el-form-item label="开始时间" prop="startTime">
               <el-date-picker
                 v-model="form.startTime"
                  value-format="YYYY-MM-DD HH:mm:ss"
                 type="datetime"
-                placeholder="请输入图书价格"
+                placeholder="请输入读书计划价格"
               />
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="24">
             <el-form-item label="结束时间" prop="endTime">
               <el-date-picker
                 v-model="form.endTime"
                  type="datetime"
                  value-format="YYYY-MM-DD HH:mm:ss"
-                placeholder="请输入图书价格"
+                placeholder="请输入读书计划价格"
               />
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="24">
             <el-form-item label="多选读者" prop="userIds" v-if="true">
               <el-select
                 v-model="form.userIds"
@@ -240,9 +248,13 @@ const { sys_book_type, } = proxy.useDict(
   'sys_book_type',
 )
 import {
-  listBook,getBookplan,updateBook,addBook,delBook
+  listBookPlan,getBookplan,updateBook,addBook,delBook
  
 } from '@/api/book/plan'
+import {
+  listBook, 
+ 
+} from '@/api/book/booklist'
 import { onMounted } from 'vue';
 const data = reactive({
   form: {},
@@ -257,8 +269,11 @@ const data = reactive({
     planName: [
       { required: true, message: '标题不能为空', trigger: 'blur' }
     ],
-    menuType: [
-      { required: true, message: '图书类型不能为空', trigger: 'change' }
+    userIds: [
+      { required: true, message: '不能为空', trigger: 'change' }
+    ],
+    bookIds: [
+      { required: true, message: '不能为空', trigger: 'change' }
     ]
   }
 })
@@ -272,12 +287,15 @@ const title = ref(null)
 const ids = ref([])
 const showSearch =ref(true)
 const userIds = ref([])
+const booksList = ref([])
 import {
   listUser,
 } from '@/api/system/user'
 onMounted( async()=>{
    let res =await listUser() 
    userIds.value = res.rows
+   let resp = await listBook()
+   booksList.value=  resp.rows
 })
 
 dayjs.extend(timezone);
@@ -290,7 +308,7 @@ function formatForApi(date) {
 function getList () {
 //   loading.value = true
  
-  listBook(queryParams.value).then(response => {
+listBookPlan(queryParams.value).then(response => {
     bookList.value = response.rows
     total.value = response.total
     loading.value = false
@@ -328,7 +346,7 @@ function cancel () {
 function handleAdd () {
    reset()
   open.value = true
-  title.value = '添加图书plan'
+  title.value = '添加读书计划plan'
 }
 /**修改按钮操作 */
 function handleUpdate (row) {
@@ -338,7 +356,7 @@ function handleUpdate (row) {
     form.value = res.data
     form.value.userIds = res.userIds
     open.value = true
-    title.value = '修改图书'
+    title.value = '修改读书计划'
   })
 }
 /** 提交按钮 */
@@ -369,7 +387,7 @@ function submitForm () {
 
 /** 删除按钮操作 */
 function handleDelete (row) {
-  const noticeIds = row.bookId || ids.value
+  const noticeIds = row.planId || ids.value
   proxy.$modal
     .confirm('是否确认删除公告编号为"' + noticeIds + '"的数据项？')
     .then(function () {
