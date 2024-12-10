@@ -1,5 +1,37 @@
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+// import timezone from 'dayjs/plugin/timezone';
+// dayjs.extend(timezone);
+dayjs.extend(utc);
+
+export function formatForApi(date) {
+  // console.log('ty',typeof(date))
+ if (date.includes('000Z')) {return date}
+  else{
+    
+    return dayjs(date)           //.utc(8).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+  }
+    }
 
 
+export function convertToCST(isoString) {
+      // 创建 Date 对象
+      const utcDate = new Date(isoString);
+    
+      // 将 UTC 时间转换为东八区时间
+      const cstDate = new Date(utcDate.getTime());
+    
+      // 获取年、月、日、小时、分钟和秒
+      const year = cstDate.getFullYear();
+      const month = String(cstDate.getMonth() + 1).padStart(2, '0'); // 月份从 0 开始，需要加 1
+      const day = String(cstDate.getDate()).padStart(2, '0');
+      const hours = String(cstDate.getHours()).padStart(2, '0');
+      const minutes = String(cstDate.getMinutes()).padStart(2, '0');
+      const seconds = String(cstDate.getSeconds()).padStart(2, '0');
+    
+      // 拼接成所需的格式
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }    
 /**
  * 通用js方法封装处理
  * Copyright (c) 2019 ruoyi
@@ -10,6 +42,8 @@ export function parseTime(time, pattern) {
   if (arguments.length === 0 || !time) {
     return null
   }
+  // console.log('utc type',typeof(time))
+ 
   const format = pattern || '{y}-{m}-{d} {h}:{i}:{s}'
   let date
   if (typeof time === 'object') {
@@ -23,7 +57,7 @@ export function parseTime(time, pattern) {
     if ((typeof time === 'number') && (time.toString().length === 10)) {
       time = time * 1000
     }
-    date = new Date(time)
+     date = new Date(time)
   }
   const formatObj = {
     y: date.getFullYear(),

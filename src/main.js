@@ -38,7 +38,7 @@ import elementIcons from '@/components/SvgIcon/svgicon'
 import './permission' // permission control
 
 import { useDict } from '@/utils/dict'
-import { parseTime, resetForm, addDateRange, handleTree, selectDictLabel, selectDictLabels } from '@/utils/mei-mei'
+import { parseTime, resetForm, addDateRange, handleTree, selectDictLabel, selectDictLabels,formatForApi,convertToCST } from '@/utils/mei-mei'
 
 //拖拽布局
 import Splitpane from '@/components/ReSplitPane'
@@ -70,6 +70,8 @@ app.config.globalProperties.$bus = mitt()
 app.config.globalProperties.useDict = useDict
 app.config.globalProperties.download = download
 app.config.globalProperties.parseTime = parseTime
+app.config.globalProperties.formatForApi = formatForApi
+app.config.globalProperties.convertToCST = convertToCST
 app.config.globalProperties.resetForm = resetForm
 app.config.globalProperties.handleTree = handleTree
 app.config.globalProperties.addDateRange = addDateRange
