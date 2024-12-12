@@ -157,7 +157,7 @@
       width="420px"
       append-to-body
     >
-    {{form.startTime}}
+   
       <el-form ref="noticeRef" :model="form" :rules="rules" label-width="110px">
         <el-row>
           <el-col :span="24" >
@@ -361,11 +361,11 @@ function handleUpdate (row) {
 function submitForm () {
   proxy.$refs['noticeRef'].validate(valid => {
     if (valid) {
-
+      form.value.startTime =proxy.formatForApi(form.value.startTime)
+      form.value.endTime = proxy.formatForApi(form.value.endTime)
 
       if (form.value.planId != undefined) {
-             form.value.startTime =proxy.formatForApi(form.value.startTime)
-      form.value.endTime = proxy.formatForApi(form.value.endTime)
+
         updateBook(form.value).then(response => {
           proxy.$modal.msgSuccess('修改成功')
           open.value = false

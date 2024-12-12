@@ -83,9 +83,19 @@
             <span>{{  scope.row.user.nickName }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="完成进度" align="center" prop="status" width="100">
+        <el-table-column
+          label="精选书单"
+          align="center"
+          prop="menuType"
+          width="150"
+        >
           <template #default="scope">
-            <el-progress v-model="scope.row.progress"></el-progress>
+            <el-tag v-for="item in filterBooks(scope.row.plan.ids)" class="ml5">{{  item }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="完成进度" align="center" prop="status" width="150">
+          <template #default="scope">
+            <el-progress :percentage="scope.row.progress"></el-progress>
           </template>
         </el-table-column>
  
@@ -93,10 +103,20 @@
           label="创建时间"
           align="center"
           prop="createTime"
-          width="100"
+          width="156"
         >
           <template #default="scope">
-            <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
+            <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}') }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="任务截止日期"
+          align="center"
+          prop="createTime"
+          width="156"
+        >
+          <template #default="scope">
+            <span>{{ parseTime(scope.row.plan.endTime, '{y}-{m}-{d} {h}:{i}') }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -196,6 +216,7 @@ import {
   listProgress 
  
 } from '@/api/book/planProgress'
+import { onMounted } from 'vue';
 const data = reactive({
   form: {},
   queryParams: {
@@ -222,6 +243,11 @@ const open = ref(false)
 const title = ref(null)
 const ids = ref([])
 const showSearch =ref(true)
+const bookLists = ref([])
+onMounted(async ()=>{
+  let res = await  listProgress()
+  bookLists.value =  res.bookLists
+})
 function getList () {
 //   loading.value = true
  
@@ -229,8 +255,10 @@ listProgress(queryParams.value).then(response => {
     bookList.value = response.rows
     total.value = response.total
     loading.value = false
+ 
   })
 }
+
 getList()
 
 /** 表单重置 */
@@ -258,21 +286,33 @@ function cancel () {
   reset()
 }
 /** 新增按钮操作 */
+
 function handleAdd () {
    reset()
   open.value = true
   title.value = '添加图书'
 }
-/**修改按钮操作 */
-function handleUpdate (row) {
-   reset()
-  const noticeId = row.bookId || ids.value
-  getBook(noticeId).then(response => {
-    form.value = response.data
-    open.value = true
-    title.value = '修改图书'
+  function filterBooks(bookids){
+ 
+   
+  let result= bookLists.value.filter(book=> bookids.includes(book.bookId) )
+  let bookNames = result.map(item=>{
+    return item.bookName
   })
+  console.log(bookNames)
+   return bookNames
+  
 }
+/**修改按钮操作 */
+// function handleUpdate (row) {
+//    reset()
+//   const noticeId = row.bookId || ids.value
+//   getBook(noticeId).then(response => {
+//     form.value = response.data
+//     open.value = true
+//     title.value = '修改图书'
+//   })
+// }
 /** 提交按钮 */
 function submitForm () {
   proxy.$refs['noticeRef'].validate(valid => {

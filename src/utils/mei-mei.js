@@ -9,7 +9,7 @@ export function formatForApi(date) {
  if (date.includes('000Z')) {return date}
   else{
     
-    return dayjs(date)           //.utc(8).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+    return dayjs(date)           // 提交时转成IOS 8601的UTC  
   }
     }
 
@@ -30,7 +30,7 @@ export function convertToCST(isoString) {
       const seconds = String(cstDate.getSeconds()).padStart(2, '0');
     
       // 拼接成所需的格式
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`; //先转成北京时间
     }    
 /**
  * 通用js方法封装处理
