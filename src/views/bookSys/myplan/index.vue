@@ -213,7 +213,7 @@ const { sys_book_type, } = proxy.useDict(
   'sys_book_type',
 )
 import {
-  listProgress ,
+  listProgress ,selflist
  
 } from '@/api/book/planProgress'
 import { onMounted } from 'vue';
@@ -251,7 +251,7 @@ onMounted(async ()=>{
 function getList () {
 //   loading.value = true
  
-listProgress(queryParams.value).then(response => {
+selflist(queryParams.value).then(response => {
     bookList.value = response.rows
     total.value = response.total
     loading.value = false

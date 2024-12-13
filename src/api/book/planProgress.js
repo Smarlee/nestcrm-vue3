@@ -8,3 +8,12 @@ export function listProgress(query) {
     params: query
   })
 }
+
+
+export function selflist(query) {
+  return request({
+    url: '/system/planProgress/selflist',
+    method: 'get',
+    params: query
+  })
+}
