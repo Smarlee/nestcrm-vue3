@@ -128,10 +128,10 @@
             <el-button
               link
               type="primary"
-              icon="View"
+              icon="Edit"
               @click="handleUpdate(scope.row)"
               v-hasPermi="['system:notice:edit']"
-              >查看</el-button
+              >修改</el-button
             >
             <!-- <el-button
               link
@@ -139,7 +139,7 @@
               icon="Delete"
               @click="handleDelete(scope.row)"
               v-hasPermi="['system:notice:remove']"
-              >删除</el-button
+              >修改</el-button
             > -->
           </template>
         </el-table-column>
@@ -161,35 +161,42 @@
       width="780px"
       append-to-body
     >
-      <el-form ref="noticeRef" :model="form" :rules="rules" label-width="80px">
+     
+      <el-form ref="noticeRef" :model="form" :rules="rules" label-width="100px">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="图书标题" prop="bookName">
+            <el-form-item label="计划名称" prop="plan.planName">
               <el-input
-                v-model="form.bookName"
+                v-model="form.plan.planName"
                 placeholder="请输入图书标题"
               />
             </el-form-item>
           </el-col>
 
           <el-col :span="12">
-            <el-form-item label="图书类型" prop="menuType">
-              <el-select v-model="form.menuType" placeholder="请选择">
+            <el-form-item label="我的图书" prop="ids">
+              <el-select v-model="form.ids" multiple placeholder="请选择">
                 <el-option
-                  v-for="dict in sys_book_type"
-                  :key="dict.value"
-                  :label="dict.label"
-                  :value="dict.value"
+                  v-for="dict in bookLists"
+                  :key="dict.bookId"
+                  :label="dict.bookName"
+                  :value="dict.bookId"
                 ></el-option>
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
-            <el-form-item label="图书价格" prop="price">
-              <el-input
-                v-model="form.price"
-                placeholder="请输入图书价格"
+          <el-col :span="24">
+            <el-form-item label="我的阅读进度" prop="progress">
+              <el-progress
+                :percentage="form.progress"
+                :stroke-width="16"
+                style=" width:220px"
+                placeholder="请输入进度"
               />
+              <el-button-group>
+        <el-button :icon="Minus" @click="decrease" />
+        <el-button :icon="Plus" @click="increase" />
+      </el-button-group>
             </el-form-item>
           </el-col>
  
@@ -213,9 +220,10 @@ const { sys_book_type, } = proxy.useDict(
   'sys_book_type',
 )
 import {
-  listProgress ,selflist
+  listProgress ,selflist,updateProgress
  
 } from '@/api/book/planProgress'
+import { Minus, Plus } from '@element-plus/icons-vue'
 import { onMounted } from 'vue';
 const data = reactive({
   form: {},
@@ -304,21 +312,26 @@ function handleAdd () {
   
 }
 /**修改按钮操作 */
-// function handleUpdate (row) {
-//    reset()
-//   const noticeId = row.bookId || ids.value
-//   getBook(noticeId).then(response => {
-//     form.value = response.data
-//     open.value = true
-//     title.value = '修改图书'
-//   })
-// }
+function handleUpdate (row) {
+   reset()
+   open.value = true
+   form.value = row
+   form.value.ids = row.plan.ids.split(',').map(Number)
+  // const noticeId = row.bookId || ids.value
+  // getBook(noticeId).then(response => {
+  //   form.value = response.data
+  //   open.value = true
+  //   title.value = '修改图书'
+  // })
+}
 /** 提交按钮 */
 function submitForm () {
   proxy.$refs['noticeRef'].validate(valid => {
     if (valid) {
-      if (form.value.bookId != undefined) {
-        updateBook(form.value).then(response => {
+      if (form.value.progressId != undefined) {
+        form.value.ids = form.value.ids.toString()
+        // form.value.planId_userId = form.value.planId
+        updateProgress(form.value).then(response => {
           proxy.$modal.msgSuccess('修改成功')
           open.value = false
           getList()
@@ -332,6 +345,19 @@ function submitForm () {
       }
     }
   })
+}
+
+const increase = () => {
+  form.value.progress += 10
+  if (form.value.progress > 100) {
+    form.value.progress = 100
+  }
+}
+const decrease = () => {
+  form.value.progress -= 10
+  if (form.value.progress < 0) {
+    form.value.progress = 0
+  }
 }
 
 /** 删除按钮操作 */

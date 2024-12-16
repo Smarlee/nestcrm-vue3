@@ -17,3 +17,14 @@ export function selflist(query) {
     params: query
   })
 }
+
+
+
+// 修改 
+export function updateProgress(data) {
+  return request({
+    url: '/system/planProgress',
+    method: 'put',
+    data: data
+  })
+}
