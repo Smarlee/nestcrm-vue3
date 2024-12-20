@@ -166,10 +166,8 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="计划名称" prop="plan.planName">
-              <el-input
-                v-model="form.plan.planName"
-                placeholder="请输入图书标题"
-              />
+              {{ form.plan.planName }}
+ 
             </el-form-item>
           </el-col>
 
@@ -291,7 +289,7 @@ function resetQuery () {
 }
 function cancel () {
   open.value = false
-  reset()
+  // reset()
 }
 /** 新增按钮操作 */
 
