@@ -161,7 +161,7 @@
       width="780px"
       append-to-body
     >
-     
+
       <el-form ref="noticeRef" :model="form" :rules="rules" label-width="100px">
         <el-row>
           <el-col :span="12">
@@ -173,7 +173,7 @@
 
           <el-col :span="12">
             <el-form-item label="我的图书" prop="ids">
-              <el-select v-model="form.ids" multiple placeholder="请选择">
+              <el-select v-model="form.ids" multiple placeholder="请选择" disabled>
                 <el-option
                   v-for="dict in bookLists"
                   :key="dict.bookId"
@@ -183,6 +183,14 @@
               </el-select>
             </el-form-item>
           </el-col>
+          <el-col :span="12">
+            <el-form-item label="封面预览" prop="price">
+              <!-- {{ findPic( form.ids) }}  -->
+              <el-image v-for="item in findPic(form.ids)" style="width: 100px; height: 100px" :src="`${baseUrl}${item}`" :fit="fit" class="ml5" />
+            
+            </el-form-item>
+          </el-col>
+
           <el-col :span="24">
             <el-form-item label="我的阅读进度" prop="progress">
               <el-progress
@@ -214,15 +222,15 @@
 
 <script setup name="Book">
  const { proxy } = getCurrentInstance()
-const { sys_book_type, } = proxy.useDict(
-  'sys_book_type',
-)
+const { sys_book_type, } = proxy.useDict('sys_book_type',);
 import {
   listProgress ,selflist,updateProgress
  
 } from '@/api/book/planProgress'
 import { Minus, Plus } from '@element-plus/icons-vue'
 import { onMounted } from 'vue';
+const baseUrl = import.meta.env.VITE_APP_BASE_API;
+
 const data = reactive({
   form: {},
   queryParams: {
@@ -309,6 +317,18 @@ function handleAdd () {
    return bookNames
   
 }
+function findPic(bookids){
+ 
+   
+ let result= bookLists.value.filter(book=> bookids.includes(book.bookId) )
+ let bookNamesPic = result.map(item=>{
+   return item.bookPic
+ })
+ 
+  return bookNamesPic
+ 
+}
+
 /**修改按钮操作 */
 function handleUpdate (row) {
    reset()

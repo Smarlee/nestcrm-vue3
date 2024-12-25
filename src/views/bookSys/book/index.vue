@@ -69,7 +69,15 @@
           prop="bookName"
           :show-overflow-tooltip="true"
         />
- 
+        <el-table-column
+          label="图书封面"
+          align="center"
+          prop=""
+        >
+        <template #default="{ row }">
+                            <el-image style="width: 100px; height: 100px" :src="`${baseUrl}${row.bookPic}`" :fit="fit" />
+           </template>
+        </el-table-column>
         <el-table-column
           label="图书售价"
           align="center"
@@ -170,9 +178,33 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
+            <el-form-item label="图书封面" prop="price">
+              <el-upload ref="upload" class="upload-demo" :headers="headers"   :on-success="handleUploadSuccess" v-if="open"
+                        :action="uploadFileUrl" :limit="1" :on-exceed="handleExceed" :auto-upload="true">
+                        <template #trigger>
+                            <el-button type="primary">选择要上传的图片</el-button>
+                        </template>
+
+                        <template #tip>
+                            <div class="el-upload__tip text-red">
+                                limit 1 file, new file will cover the old file
+                            </div>
+                        </template>
+                    </el-upload>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="封面预览" prop="price">
+              <el-image style="width: 100px; height: 100px" :src="`${baseUrl}${form.bookPic}`" :fit="fit" />
+            
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12">
             <el-form-item label="图书价格" prop="price">
               <el-input
                 v-model="form.price"
+                type="number"
                 placeholder="请输入图书价格"
               />
             </el-form-item>
@@ -194,13 +226,13 @@
 
 <script setup name="Book">
  const { proxy } = getCurrentInstance()
-const { sys_book_type, } = proxy.useDict(
-  'sys_book_type',
-)
-import {
-  listBook,getBook,updateBook,addBook,delBook
- 
-} from '@/api/book/booklist'
+const { sys_book_type, } = proxy.useDict('sys_book_type',)
+import { genFileId } from 'element-plus'
+import {listBook,getBook,updateBook,addBook,delBook} from '@/api/book/booklist';
+import { getToken } from "@/utils/auth";
+const baseUrl = import.meta.env.VITE_APP_BASE_API;
+const headers = ref({ Authorization: "Bearer " + getToken() });
+const uploadFileUrl = ref(import.meta.env.VITE_APP_BASE_API + "/common/upload"); // 上传文件服务器地址
 const data = reactive({
   form: {},
   queryParams: {
@@ -268,6 +300,23 @@ function handleAdd () {
   open.value = true
   title.value = '添加图书'
 }
+
+const handleExceed = (files) => {
+    proxy.$refs.upload.clearFiles()
+    const file = files[0]
+    file.uid = genFileId()
+    proxy.$refs.upload.handleStart(file)
+}
+async function handleUploadSuccess(res, file) {
+
+    if (res.code === 200) {
+        // 上传成功以后 回调
+       form.value.bookPic=   res.fileName    // '/upload/2024-12-25/1735096289113-947051579-rongyu100.png'
+
+    }
+}
+
+
 /**修改按钮操作 */
 function handleUpdate (row) {
    reset()
