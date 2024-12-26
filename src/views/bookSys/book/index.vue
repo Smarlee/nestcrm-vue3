@@ -40,14 +40,24 @@
       </el-form-item>
     </el-form>
         <!-- <el-button @click="getList">刷新</el-button>  -->
-        <el-button
-          type="primary"
-          plain
-          icon="Plus"
-          @click="handleAdd"
-          v-hasPermi="['system:notice:add']"
-          >新增</el-button
-        >
+        <el-row class="mb10">
+          <el-button
+            type="primary"
+            plain
+            icon="Plus"
+            @click="handleAdd"
+            v-hasPermi="['system:notice:add']"
+            >新增</el-button
+          >
+          <el-button
+            type="success"
+            plain
+            icon="Download"
+            @click="handleExport"
+            v-hasPermi="['system:notice:export']"
+            >导出</el-button
+          >
+        </el-row>
         <el-table
         height="100%"
         v-loading="loading"
@@ -300,6 +310,18 @@ function handleAdd () {
   open.value = true
   title.value = '添加图书'
 }
+
+/** 导出按钮操作 */
+function handleExport () {
+  proxy.download(
+    'system/bookList/export',
+    {
+      ...queryParams.value
+    },
+    `图书库_${new Date().getTime()}.xlsx`
+  )
+}
+
 
 const handleExceed = (files) => {
     proxy.$refs.upload.clearFiles()
