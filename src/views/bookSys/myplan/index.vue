@@ -313,7 +313,7 @@ function handleAdd () {
   let bookNames = result.map(item=>{
     return item.bookName
   })
-  console.log(bookNames)
+  // console.log(bookNames,'bookNames')
    return bookNames
   
 }

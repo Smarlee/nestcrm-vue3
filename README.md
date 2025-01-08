@@ -17,11 +17,17 @@ If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has a
    2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
 2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
 
-## 除了用户、部门、岗位、角色权限外，增加了图书管理模块 演示图
+## 除了用户、部门、岗位、角色权限外
+### 增加图书商城 购物车 和我的订单
+### 增加了图书管理模块 演示图
 
 <table>
     <tr>
         <td><img src="./book01.png"/></td>
         <td><img src="./book02.png"/></td>
+    </tr>
+    <tr>
+        <td><img src="./shop.png"/></td>
+        <td><img src="./orderlist.png"/></td>
     </tr>
 </table>
