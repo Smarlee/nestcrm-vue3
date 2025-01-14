@@ -19,3 +19,12 @@ export function addCarts(userId,data) {
     data: data
   })
 }
+
+
+// 删除 
+export function delCart(noticeId) {
+  return request({
+    url: '/cart/' + noticeId,
+    method: 'delete'
+  })
+}

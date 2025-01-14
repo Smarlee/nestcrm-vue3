@@ -96,10 +96,14 @@ const totalPrice = computed(()=>{
   return  Number(total).toFixed(2) 
 })
  
- function toPay(){
+import { getUserProfile } from '@/api/system/user'
+
+ async function toPay(){
   const booksList = cartList.value.map(item=>{
     return {bookId:item.bookId,quantity:1}
   })
+  const res = await  getUserProfile() 
+  const userId = res.data.userId
   ElMessageBox.prompt('请输入你的支付密码', 'Tip', {
     confirmButtonText: 'OK',
     cancelButtonText: 'Cancel',
@@ -107,7 +111,7 @@ const totalPrice = computed(()=>{
     inputErrorMessage: 'Invalid Password',
   })
     .then(({ value }) => {
-      addCarts(3,booksList).then(res=>{
+      addCarts(userId,booksList).then(res=>{
         proxy.$modal.msgSuccess('正在支付中,支付失败,为您跳转到我的订单页面')
         proxy.$router.push({ path: "/bookshop/orderList" });
       })
@@ -128,8 +132,8 @@ const totalPrice = computed(()=>{
 
 .bookList { display: flex;  justify-content: flex-start; width: 100%;  flex-flow: row wrap;
   .cartin{
-    padding: 15px 10px;
+    padding: 15px 10px; min-width:220px ;
       margin-right: 1%; margin-bottom: 20px; border-radius: 10px 15px;
-    width: 19%; box-shadow: 4px 6px 8px rgba(0, 0, 0, 0.19); /* 外阴影 */}
+    width: 24%; box-shadow: 4px 6px 8px rgba(0, 0, 0, 0.19); /* 外阴影 */}
 }
 </style>
